@@ -12,8 +12,9 @@ import retrofit2.http.POST;
  */
 
 public interface ApiService {
-    public static final String MAIN_URL = "http://jip.dothome.co.kr";
-    public static final String SUB_URL = "/php/retrofit2test/test_p.php";
+    public static final String MAIN_URL = "http://jip.dothome.co.kr/php/retrofit2test/";
+    public static final String SUB_URL = "test_p.php";
+    public static final String SEND_URL = "send.php";
 
 
     @GET(SUB_URL)
@@ -22,6 +23,11 @@ public interface ApiService {
     @FormUrlEncoded
     @POST(SUB_URL)
     Call<MyData> getMyDataPost(@Field("id") String id, @Field("contents") String contents);
+
+
+    @FormUrlEncoded
+    @POST(SEND_URL)
+    Call<MyData> sendMessage(@Field("id") String id, @Field("title") String title, @Field("message") String message);
 
 
 

@@ -16,6 +16,7 @@ import com.example.deviation.retrofit2_test.model.Item;
 import com.example.deviation.retrofit2_test.model.SOAnswersResponse;
 import com.example.deviation.retrofit2_test.myteset.ApiService;
 import com.example.deviation.retrofit2_test.myteset.MyData;
+import com.example.deviation.retrofit2_test.myteset.Retrofit2Client;
 import com.example.deviation.retrofit2_test.util.ApiUtils;
 import com.example.deviation.retrofit2_test.util.SOService;
 
@@ -24,8 +25,6 @@ import java.util.ArrayList;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private AnswersAdapter mAdapter;
     private RecyclerView rv;
     private SOService service;
+    private ApiService apiService;
 
     private TextView tv;
     private EditText et1, et2;
@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getMyData();
+//                getMyData();
+                sendPushToAppWhereIsMine();
             }
         });
         btn = findViewById(R.id.btn2);
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         service = ApiUtils.getSOService();
+        apiService = ApiUtils.getApiService();
         loadAnswers();
 
 
@@ -107,13 +109,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getMyData() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ApiService.MAIN_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        ApiService myParse = retrofit.create(ApiService.class);
-        Call<MyData> call = myParse.getMyData();
-        call.enqueue(new Callback<MyData>() {
+//        Retrofit retrofit = new Retrofit.Builder()
+//                .baseUrl(ApiService.MAIN_URL)
+//                .addConverterFactory(GsonConverterFactory.create())
+//                .build();
+//        ApiService myParse = retrofit.create(ApiService.class);
+//        Call<MyData> call = myParse.getMyData();
+        apiService.getMyData().enqueue(new Callback<MyData>() {
             @Override
             public void onResponse(Call<MyData> call, Response<MyData> response) {
                 MyData p = response.body();
@@ -133,28 +135,44 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void getMyDataPost() {
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(ApiService.MAIN_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
-        ApiService myParse = retrofit.create(ApiService.class);
-        Call<MyData> call = myParse.getMyDataPost(et1.getText().toString(), et2.getText().toString());
-        call.enqueue(new Callback<MyData>() {
-            @Override
-            public void onResponse(Call<MyData> call, Response<MyData> response) {
-                MyData p = response.body();
-                Log.i("onResponse", "myparsepost" + p.id);
+        Retrofit2Client.getInstance()
+                .apiService
+                .getMyDataPost(et1.getText().toString(), et2.getText().toString())
+                .enqueue(new Callback<MyData>() {
+                    @Override
+                    public void onResponse(Call<MyData> call, Response<MyData> response) {
+                        MyData p = response.body();
+                        Log.i("onResponse", "myparsepost" + p.id);
+                        String abc = "id : " + p.id + "\ncontents : " + p.contents;
+                        tv.setText(abc);
+                    }
 
-                String abc = "id : "+p.id + "\ncontents : " + p.contents;
-                tv.setText(abc);
-            }
+                    @Override
+                    public void onFailure(Call<MyData> call, Throwable t) {
+                        Log.i("onFailure", "myparsepost" + t.getMessage());
+                    }
+                });
+    }
 
-            @Override
-            public void onFailure(Call<MyData> call, Throwable t) {
-                Log.i("onFailure", "myparsepost" + t.getMessage());
+    private void sendPushToAppWhereIsMine() {
+        String id = "input your token";
+        Retrofit2Client.getInstance()
+                .apiService
+                .sendMessage(id, et1.getText().toString(), et2.getText().toString())
+                .enqueue(new Callback<MyData>() {
+                    @Override
+                    public void onResponse(Call<MyData> call, Response<MyData> response) {
+                        MyData p = response.body();
+                        Log.i("onResponse", "myparsepost" + p.id);
+//                        String abc = "id : " + p.id + "\ntitle : " + p.title + "\nmessage : " + p.message;
+//                        tv.setText(abc);
+                    }
 
-            }
-        });
+                    @Override
+                    public void onFailure(Call<MyData> call, Throwable t) {
+                        Log.i("onFailure", "myparsepost" + t.getMessage());
+                    }
+                });
     }
 
 

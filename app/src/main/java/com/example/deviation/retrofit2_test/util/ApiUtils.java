@@ -14,7 +14,9 @@ public class ApiUtils  {
     public static SOService getSOService() {
         return RetrofitClient.getClient(BASE_URL).create(SOService.class);
     }
-    public static ApiService getMyService() {
-        return RetrofitClient.getClient(MAIN_URL).create(ApiService.class);
+     public static ApiService getApiService() {
+        return RetrofitClient.getClient(ApiService.MAIN_URL).create(ApiService.class);
     }
+
+
 }
